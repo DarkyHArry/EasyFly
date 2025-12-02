@@ -103,11 +103,6 @@ EasyFly/
 │   └── Assets.xcassets/
 │
 ├── **Documentation**
-│   ├── SECURITY_HARDENING.md            (Patches de segurança Phase 2)
-│   ├── SECURITY_PATCH_LOG.md            (Changelog técnico)
-│   ├── IMPLEMENTATION_SUMMARY.md        (Resumo de implementação)
-│   ├── PHASES_3_TO_6_ROADMAP.md         (Plano de conclusão)
-│   ├── MULTI_DEVICE_COMPATIBILITY.md    (Compatibilidade iOS)
 │   └── README.md                        (este arquivo)
 │
 └── EasyFly.xcodeproj/
@@ -349,7 +344,6 @@ xcodebuild archive \
 | **5** | Fev 2026 | Analytics + Monitoring | 🚀 Planejado |
 | **6** | Mar 2026 | UI Polish + App Store | 🚀 Planejado |
 
-**Veja [PHASES_3_TO_6_ROADMAP.md](PHASES_3_TO_6_ROADMAP.md) para detalhes.**
 
 ---
 
@@ -361,7 +355,6 @@ xcodebuild archive \
 - **Dark Mode**: ✅ Full support
 - **Orientations**: Portrait + Landscape
 
-**Veja [MULTI_DEVICE_COMPATIBILITY.md](MULTI_DEVICE_COMPATIBILITY.md) para matriz completa.**
 
 ---
 
@@ -395,41 +388,6 @@ xcrun simctl erase all  # Apaga todos simuladores
 Xcode → Product → Profile → Memory Leaks
 # Se houver leaks, check [weak self] em closures
 ```
-
----
-
-## 📞 Suporte
-
-**Issues & Bugs**: Abra issue no GitHub com:
-1. Descrição do problema
-2. Steps para reproduzir
-3. Device model + iOS version
-4. Logs (via Xcode console)
-
-**Security Issues**: Email privado para security@easyfly.com (não public issues)
-
-**Questions**: Veja [Discussions](https://github.com/seu-repo/EasyFly/discussions)
-
----
-
-## 📄 Licença
-
-**Confidencial** — Propriedade intelectual. Não distribuir sem permissão.
-
----
-
-## 👥 Contribuindo
-
-Veja [CONTRIBUTING.md](CONTRIBUTING.md) (a ser criado em Phase 6)
-
----
-
-## 🙏 Agradecimentos
-
-- **iOS Team**: Design + implementação
-- **Security Team**: Audits + hardening
-- **QA Team**: Testes e validação
-- **Apple**: Frameworks (CryptoKit, LocalAuthentication, Keychain)
 
 ---
 
