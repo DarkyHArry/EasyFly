@@ -28,7 +28,7 @@ final class KeychainHelper {
             
             // Only log unexpected delete errors (errSecItemNotFound is OK)
             if deleteStatus != errSecSuccess && deleteStatus != errSecItemNotFound {
-                os_log("Delete existing item failed: %{public}d", log: self.logger, type: .warning, deleteStatus as CVarArg)
+                os_log("Delete existing item failed: %{public}d", log: self.logger, type: .error, deleteStatus as CVarArg)
             }
 
             let query: [String: Any] = [
@@ -89,7 +89,7 @@ final class KeychainHelper {
             let status = SecItemDelete(query as CFDictionary)
             
             if status != errSecSuccess && status != errSecItemNotFound {
-                os_log("Delete failed: %{public}d", log: self.logger, type: .warning, status as CVarArg)
+                os_log("Delete failed: %{public}d", log: self.logger, type: .error, status as CVarArg)
             }
         }
     }

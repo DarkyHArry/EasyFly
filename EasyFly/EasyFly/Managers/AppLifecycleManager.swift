@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 import os
+import Combine
 
 /// Gerencia o ciclo de vida da aplicação e re-autenticação biométrica quando o app volta do background.
 final class AppLifecycleManager: NSObject, ObservableObject {
@@ -58,8 +59,10 @@ final class AppLifecycleManager: NSObject, ObservableObject {
             
             if timeInBackground > 30 {
                 // Pedir re-autenticação por segurança
-                shouldRequireReauth = true
-                os_log("Re-authentication required (was in background for %.0f seconds)", log: logger, type: .warning, timeInBackground)
+                DispatchQueue.main.async {
+                    self.shouldRequireReauth = true
+                }
+                os_log("Re-authentication required (was in background for %.0f seconds)", log: logger, type: .info, timeInBackground)
             }
         }
         self.backgroundTime = nil

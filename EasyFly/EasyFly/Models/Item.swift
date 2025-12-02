@@ -1,10 +1,3 @@
-//
-//  Item.swift
-//  EasyFly
-//
-//  Created by Esmael Victor on 30/11/25.
-//
-
 import Foundation
 import SwiftData
 
