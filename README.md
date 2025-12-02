@@ -1,6 +1,6 @@
 # EasyFly — iOS Flight Booking App
 
-**Versão**: 2.0 (Phase 2 Complete)  
+**Versão**: 2.0 - Alpha Test include BUGS!  
 **Status**: Production-Ready (Phases 3-6 roadmap included)  
 **Última Atualização**: Novembro 2025
 
