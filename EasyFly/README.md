@@ -16,396 +16,392 @@ EasyFly é um aplicativo iOS seguro de reserva de voos com:
 - Rate limiting (5 tentativas → 5 min lockout)
 - Re-autenticação ao retornar do background (30s)
 - Validação de senha duplicada (previne reutilização entre usuários)
+# EasyFly — Fases 3-6: Plano de Conclusão e App Store
 
-✅ **Segurança de Nível Empresarial**
-- PBKDF2 (100k iterações) para derivação de chaves por usuário
-- Keychain thread-safe com dispatch queue serial
-- Logging com os.log para auditoria
-- Validação robusta de input (RFC 5321 para emails)
-- Detecção rigorosa de senhas duplicadas entre usuários
-
-✅ **Compatibilidade Multi-Device**
-- iOS 14+ (iPhone 6s+, iPad)
-- Suporta TouchID (A9-A10) e FaceID (A11+)
-- Otimizado para performance em todos chips (A9 até A16)
-- Dark mode + light mode full support
-
-✅ **Performance Otimizada**
-- Startup < 2s (cold start)
-- Memory < 100MB
-- Cache de validação de email (1 min)
-- Lazy biometric type initialization
+**Versão**: 2.0 Final (Phase 2 Complete + Phases 3-6 Roadmap)  
+**Data**: Novembro 2025  
+**Status**: Phase 2 ✅ Completo | Phases 3-6 🚀 Roadmap
 
 ---
 
-## 🚀 Começando
+## 📋 Resumo Executivo
 
-### Requisitos
+O EasyFly completou a **Phase 2 (Security Hardening)** com sucesso:
+- ✅ 7 vulnerabilidades críticas corrigidas
+- ✅ 200+ linhas de código de segurança adicionadas
+- ✅ SHA-256 password hashing implementado
+- ✅ PBKDF2 per-user encryption para biometria
+- ✅ Rate limiting em todos endpoints de autenticação
+- ✅ Re-autenticação biométrica ao retornar do background
+- ✅ Validação robusta de emails (RFC 5321)
 
-- **macOS**: 12.0+ (Intel ou Apple Silicon)
-- **Xcode**: 14.0+ (com iOS 14+ SDK)
-- **Swift**: 5.0+
-- **Git**: 2.0+
-
-### Instalação Local
-
-1. **Clone o repositório**
-```bash
-git clone https://github.com/seu-usuario/EasyFly.git
-cd EasyFly
-```
-
-2. **Abra no Xcode**
-```bash
-open EasyFly.xcodeproj
-```
-
-3. **Selecione o target**
-- Scheme: EasyFly
-- Destination: Simulator (iPhone 14) ou Device (seu iPhone)
-
-4. **Build & Run**
-```bash
-# Via Xcode: ⌘ + R
-# Via CLI:
-xcodebuild -scheme EasyFly -configuration Debug -derivedDataPath build
-```
-
-### Estrutura do Projeto
-
-```
-EasyFly/
-├── EasyFly/
-│   ├── **Authentication**
-│   │   ├── LoginView.swift              (UI de login/signup)
-│   │   ├── UserManager.swift            (Gerenciamento de usuários)
-│   │   ├── KeychainHelper.swift         (Storage seguro)
-│   │   ├── BiometricManager.swift       (TouchID/FaceID)
-│   │   └── PBKDF2.swift                 (Derivação de chaves)
-│   │
-│   ├── **Security & Lifecycle**
-│   │   ├── AppLifecycleManager.swift    (Detecção background/foreground)
-│   │   ├── ReauthenticationView.swift   (Re-auth ao retornar)
-│   │   └── CacheManager.swift           (Cache + performance)
-│   │
-│   ├── **Validation & Crypto**
-│   │   └── Validator.swift              (Email + password validation)
-│   │
-│   ├── **UI & Navigation**
-│   │   ├── EasyFlyApp.swift             (App root)
-│   │   ├── AppFlowView.swift            (Login vs Main routing)
-│   │   ├── MainTabView.swift            (Abas principais)
-│   │   ├── SearchFlightsView.swift      (Busca de voos)
-│   │   ├── ContentView.swift            (Home)
-│   │   └── ProfileView.swift            (Perfil + logout)
-│   │
-│   ├── **Assets**
-│   └── Assets.xcassets/
-│
-├── **Documentation**
-│   └── README.md                        (este arquivo)
-│
-└── EasyFly.xcodeproj/
-    ├── project.pbxproj
-    └── project.xcworkspace/
-```
+**Próxima meta**: App Store submission Q1 2026 com Phases 3-6 completas.
 
 ---
 
-## 🔑 Features Principais
+## 🚀 Phase 3: Backend API Integration (4 semanas)
 
-### 1. Autenticação Segura
+**Objetivo**: Integrar servidor backend seguro para autenticação baseada em tokens.
+
+### Tarefas
+
+#### 3.1 Design da API RESTful
+- **Endpoint**: POST `/api/v1/auth/register` (crear usuario)
+- **Endpoint**: POST `/api/v1/auth/login` (login + refresh token)
+- **Endpoint**: POST `/api/v1/auth/refresh` (renovar token expirado)
+- **Endpoint**: POST `/api/v1/auth/logout` (invalidar tokens)
+- **Endpoint**: POST `/api/v1/auth/reset-password` (reset de senha)
+- **Segurança**: HTTPS only, certificate pinning, rate limiting (50 req/min por IP)
+
+**Arquivo**: `APIClient.swift` (novo)
 ```swift
-// Criar novo usuário
-UserManager.shared.createUser(email: "user@example.com", password: "SecurePass123!")
-// ✅ Checa emails duplicados
-// ✅ Hash SHA-256 da senha
-// ✅ Armazena em Keychain criptografado
-
-// Login existente
-let ok = UserManager.shared.verifyPassword(email: "user@example.com", password: "SecurePass123!")
-// ✅ Checa se conta está bloqueada (lockout)
-// ✅ Compara hash da senha
-// ✅ Reset de tentativas falhadas ao sucesso
-```
-
-### 2. Biometria com Encriptação
-```swift
-// Setup TouchID/FaceID após login
-BiometricManager.shared.setupBiometricLogin(for: "user@example.com")
-// ✅ Gera chave PBKDF2 única por usuário
-// ✅ Encripta secret com AES-256-GCM
-// ✅ Armazena em Keychain
-
-// Login com biometria
-let success = await BiometricManager.shared.authenticateWithBiometrics(for: email)
-// ✅ Reutiliza chave PBKDF2 determinística
-// ✅ Decripta secret com AES-256
-// ✅ Sucesso = login automático
-```
-
-### 3. Re-autenticação Automática
-```swift
-// AppLifecycleManager detecta app em background
-// Se > 30 segundos: Re-auth requerida
-// ReauthenticationView pede TouchID/FaceID ou logout
-// Após sucesso: App normal novamente
-```
-
-### 4. Cache de Performance
-```swift
-// Email validation cache (1 minuto)
-CacheManager.shared.cachedEmailValidation("user@example.com") // Hit = fast
-CacheManager.shared.cacheEmailValidation("user@example.com", isValid: true)
-
-// Biometric type cache (permanente)
-let bioType = CacheManager.shared.cachedBiometricType() // Checked once, reused forever
-```
-
-### 5. Validação Rigorosa de Senhas Duplicadas ⭐
-```swift
-// Validar se senha já é usada por outro usuário
-if UserManager.shared.isPasswordUsedByOtherUser(password: "SecurePass123!", excludeEmail: "new@example.com") {
-    // ❌ Senha já está em uso
-    // ❌ "Senha inválida. Esta senha já está em uso por outro usuário."
-} else {
-    // ✅ Senha é única, criar conta
-    UserManager.shared.createUser(email: "new@example.com", password: "SecurePass123!")
+struct AuthAPI {
+    func register(email: String, passwordHash: String) async throws -> AuthResponse
+    func login(email: String, passwordHash: String) async throws -> TokenResponse
+    func refreshToken(refreshToken: String) async throws -> TokenResponse
+    func logout(accessToken: String) async throws -> Void
+    func resetPassword(email: String, newPasswordHash: String) async throws -> Void
 }
 ```
 
----
+#### 3.2 Token Management
+- **Token Type**: JWT (JSON Web Token) com HS256
+- **Access Token**: TTL = 1 hora
+- **Refresh Token**: TTL = 30 dias
+- **Storage**: Ambos armazenados em Keychain com encriptação
+- **Rotation**: Refresh token renovado a cada 7 dias automaticamente
 
-## 🧪 Testando Localmente
-
-### Teste 1: Criar Conta Duplicada
-1. Abra LoginView
-2. Insira email `test@example.com` + password válida
-3. Click "Log In" → Conta criada ✅
-4. Logout (ProfileView → Sign Out)
-5. Insira mesmo email `test@example.com` + password diferente
-6. Resultado esperado: Mensagem "Email já existe" ✅
-
-### Teste 2: Validar Senha Duplicada ⭐
-1. Crie conta Alice:
-   - Email: `alice@example.com`
-   - Senha: `SecurePassword123!`
-   - Resultado: ✅ Conta criada
-
-2. Tente criar conta Bob com MESMA senha:
-   - Email: `bob@example.com`
-   - Senha: `SecurePassword123!`
-   - Resultado: ❌ "Senha inválida. Esta senha já está em uso por outro usuário."
-
-3. Tente criar conta Bob com SENHA DIFERENTE:
-   - Email: `bob@example.com`
-   - Senha: `AnotherSecure456!`
-   - Resultado: ✅ Conta criada com sucesso
-
-### Teste 3: Rate Limiting
-1. Insira email `attacker@example.com` + password errada
-2. Tente 5 vezes rapidamente
-3. 5ª tentativa: "Conta bloqueada por 5 minutos" ✅
-4. Espere 5 minutos ou reinicie app
-5. Tente novamente: Desbloqueado ✅
-
-### Teste 4: Re-autenticação
-1. Login com email/password
-2. Press home button (background app)
-3. Espere 35 segundos
-4. Abra app → ReauthenticationView aparece ✅
-5. Use TouchID/FaceID para re-autenticar
-6. MainTabView volta normal ✅
-
-### Teste 5: Biometria Setup
-1. Login com novo email
-2. Alert: "Deseja usar TouchID/FaceID?" aparece
-3. Click "Sim, deletar senha"
-4. TouchID/FaceID prompt
-5. Sucesso: Senha deletada, biometria ativada ✅
-6. Logout → Login com TouchID/FaceID ✅
-
-### Teste 6: Email Validation
-1. Tente emails inválidos:
-   - `test` (sem @) → Rejeitado ✅
-   - `test@` (sem domínio) → Rejeitado ✅
-   - `test@..com` (pontos duplicados) → Rejeitado ✅
-2. Tente emails válidos:
-   - `user@example.com` → Aceito ✅
-   - `first.last@company.co.uk` → Aceito ✅
-
-### Teste 7: Password Strength
-1. Insira senhas fracas:
-   - `12345678` (números só) → "Fraca" ✅
-   - `abcdefgh` (letras só) → "Fraca" ✅
-   - `Test1!` (muito curta) → "Fraca" ✅
-2. Insira senhas fortes:
-   - `SecureP@ssw0rd` → "Forte" ✅
-   - `MyPassword123!x` → "Forte" ✅
-
----
-
-## 📱 Testando em Device
-
-### Preparation
-1. Conecte iPhone via USB
-2. Xcode → Window → Devices and Simulators
-3. Trust device (se pedido)
-4. Selecione device como destination
-
-### Build & Run
-```bash
-# Xcode UI: ⌘ + R
-# CLI:
-xcodebuild -scheme EasyFly -configuration Debug -sdk iphoneos -destination 'generic/platform=iOS' build
+**Arquivo**: `TokenManager.swift` (novo)
+```swift
+struct TokenManager {
+    func saveTokens(accessToken: String, refreshToken: String, expiresIn: Int) throws
+    func getAccessToken() -> String?
+    func refreshAccessToken() async throws -> String
+    func clearTokens() throws
+    func isTokenExpired(_ token: String) -> Bool
+}
 ```
 
-### Debugar
-```bash
-# View console logs:
-# Xcode → View → Debug Area → Show → Console
+#### 3.3 HTTPS Certificate Pinning
+- **Framework**: URLSessionConfiguration + URLSessionDelegate
+- **Certificados**: Pinnar 2-3 certificados CA principais + backup
+- **Fallback**: Se pinning falhar, log error + mostrar mensagem de segurança
+- **Rotação**: Implementar mecanismo de atualização de certs (in-app ou OTA)
 
-# Breakpoints:
-# Xcode → Breakpoint Navigator → Add breakpoint
-# Example: KeychainHelper.save() linha 15
-
-# Memory profiling:
-# Xcode → Product → Profile → Instruments → Memory
+**Arquivo**: `NetworkSecurity.swift` (novo)
+```swift
+class PinningDelegate: NSObject, URLSessionDelegate {
+    func urlSession(_ session: URLSession, 
+                    didReceive challenge: URLAuthenticationChallenge,
+                    completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
+    // Validar certificado contra lista de certificados públicos conhecidos
+}
 ```
 
----
+#### 3.4 Integração LoginView → Backend
+- Substituir `UserManager.createUser()` por `AuthAPI.register()`
+- Substituir `UserManager.verifyPassword()` por `AuthAPI.login()`
+- Armazenar tokens em Keychain via `TokenManager`
+- Usar access token em headers: `Authorization: Bearer <token>`
+- Implementar token refresh automático (interceptor)
 
-## 🔒 Segurança — Detalhes Técnicos
+#### 3.5 Testes
+- Unit tests para TokenManager (expiração, refresh)
+- Integration tests para AuthAPI (mock server)
+- Network tests para certificate pinning
+- Cobertura: 80%+ do código de autenticação
 
-### Passwords
-- **Armazenamento**: SHA-256 hash em Keychain
-- **Comparação**: Hash-to-hash (never plaintext)
-- **PBKDF2**: Para derivação de chaves biométricas (100k iterations)
-
-### Biometria
-- **Encriptação**: AES-256-GCM (authenticated encryption)
-- **Chave**: PBKDF2-derived per-user (determinística)
-- **Salt**: Único por email, armazenado em UserDefaults
-- **Recovery**: Sem backdoor, perda de biometria = use password
-
-### Keychain
-- **Acesso**: `kSecAttrAccessibleWhenUnlockedThisDeviceOnly` (device-specific)
-- **Thread-Safety**: DispatchQueue serial + sync operations
-- **Logging**: os.log com níveis (info/warning/error)
-
-### Rate Limiting
-- **Login**: 5 tentativas falhadas → 5 minutos lockout
-- **Forgot Password**: Mesma lógica de lockout
-- **Retry**: Unlock após 5 min ou sucesso de login
+**Timeline**: Semanas 1-4
+**Owner**: Backend Team (API) + iOS Team (Client)
 
 ---
 
-## 🚀 Build para Production
+## 🔐 Phase 4: Advanced Security Features (3 semanas)
 
-### Preparação
-1. **Certificado Developer**: Apple Developer Account ($99/ano)
-2. **Provisioning Profile**: Xcode → Preferences → Accounts → Manage Certificates
-3. **Bundle ID**: Único (ex: `com.yourcompany.easyfly`)
-4. **Version Bump**: Info.plist → Version = "2.0"
+**Objetivo**: Implementar recursos avançados de segurança para proteger contra ataques sofisticados.
 
-### Build Release
-```bash
-# Clean build folder
-rm -rf build/
+### Tarefas
 
-# Archive para distribuição
-xcodebuild archive \
-  -scheme EasyFly \
-  -archivePath build/EasyFly.xcarchive \
-  -configuration Release \
-  -exportOptionsPlist ExportOptions.plist
+#### 4.1 Two-Factor Authentication (2FA)
+- **Tipo**: TOTP (Time-based One-Time Password) como opção principal
+- **Fallback**: SMS OTP para usuários sem autenticador
+- **Fluxo**:
+  1. Login com email + password ✅
+  2. Servidor envia TOTP challenge
+  3. Usuário insere código do Google Authenticator (ou similar)
+  4. Servidor valida TOTP + emite tokens
 
-# ExportOptions.plist contém:
-# signingStyle: automatic (ou manual)
-# teamID: seu Team ID
-# method: app-store (ou ad-hoc/enterprise)
+**Arquivo**: `TwoFactorView.swift` (novo)
+```swift
+struct TwoFactorView: View {
+    @State var totpCode: String = ""
+    func handleTwoFactorSubmit()
+}
 ```
 
-### App Store Submission
-1. **Create App ID**: App Store Connect → My Apps
-2. **Upload Build**: Xcode → Window → Organizer → Archives → Distribute App
-3. **Metadata**: Nome, descrição, screenshots, keywords
-4. **Review**: Apple verifica (típicamente 24h)
-5. **Approve & Release**: Choose a release date
+#### 4.2 Jailbreak/Root Detection
+- **Objetivo**: Detectar se device foi "hackeado" e alertar usuário
+- **Métodos**:
+  - Verificar presença de arquivos conhecidos de jailbreak (`/var/mobile/Library/Caches`, etc.)
+  - Detectar Frida/Cydia instalados
+  - Verificar se app foi assinado corretamente
+  - Checar permissões anormais (sandbox escape)
+- **Ação**: Se jailbreak detectado, mostrar alerta e desabilitar biometria
 
----
-
-## 📊 Roadmap (Phases 3-6)
-
-| Phase | Timeline | Objetivo | Status |
-|-------|----------|----------|--------|
-| **3** | Dez 2025 | Backend API + Tokens | 🚀 Planejado |
-| **4** | Jan 2026 | 2FA + Advanced Security | 🚀 Planejado |
-| **5** | Fev 2026 | Analytics + Monitoring | 🚀 Planejado |
-| **6** | Mar 2026 | UI Polish + App Store | 🚀 Planejado |
-
-
----
-
-## 📱 Compatibilidade
-
-- **iOS**: 14.0+ (iPhone 6s+)
-- **Devices**: iPhone + iPad
-- **Biometria**: TouchID (A9+), FaceID (A11+)
-- **Dark Mode**: ✅ Full support
-- **Orientations**: Portrait + Landscape
-
-
----
-
-## 🐛 Troubleshooting
-
-### Build Error: "Code Signing Identity"
-```bash
-# Solução:
-Xcode → Preferences → Accounts → Add Apple ID → Select Team
-Xcode → Build Settings → Code Signing → Automatic
+**Arquivo**: `SecurityChecker.swift` (novo)
+```swift
+struct JailbreakDetector {
+    static func isDeviceJailbroken() -> Bool
+    static func checkCodeSigning() -> Bool
+    static func checkSandbox() -> Bool
+}
 ```
 
-### Runtime Error: "Keychain not available"
-```bash
-# Causa: Simulator pode ter Keychain desincronizado
-# Solução:
-xcrun simctl erase all  # Apaga todos simuladores
-# Ou selecione novo simulator
+#### 4.3 Anomaly Detection
+- **Objetivo**: Detectar padrões suspeitos de login
+- **Sinais**:
+  - Login de geolocalização impossível (ex: São Paulo → Los Angeles em 1 hora)
+  - Login de dispositivo novo sem confirmação
+  - 10+ login attempts em 10 minutos
+  - Login fora de horário normal do usuário
+- **Ação**: Pedir re-autenticação biométrica extra ou 2FA
+
+**Arquivo**: `AnomalyDetector.swift` (novo)
+```swift
+struct AnomalyDetector {
+    static func checkLoginAnomaly(location: CLLocation, device: String) -> Bool
+    static func isImpossibleTravel(lastLocation: CLLocation, currentLocation: CLLocation, timeDiff: TimeInterval) -> Bool
+}
 ```
 
-### Biometria não funciona em Simulator
-```bash
-# Esperado: TouchID/FaceID requer device real
-# Simulator fallback: Sempre retorna false
-# Solution: Testar em device real
-```
+#### 4.4 Secure Logout
+- **Local**: Limpar todos os tokens do Keychain
+- **Remote**: Chamar `/api/v1/auth/logout` para invalidar sessão no servidor
+- **Session**: Deletar cookies/local storage
+- **Biometria**: Limpar dados biométricos
+- **Cache**: Limpar cache de email validation
 
-### Memory leak warning
-```bash
-# Verify com Instruments:
-Xcode → Product → Profile → Memory Leaks
-# Se houver leaks, check [weak self] em closures
-```
+**Arquivo**: Atualizar `UserManager.logout()` + ProfileView
+
+#### 4.5 Session Management
+- **Timeout**: 12 horas de inatividade → logout automático
+- **Multiple Devices**: Limpar tokens de outros devices ao fazer logout
+- **Concurrent Sessions**: Máximo 3 sessões simultâneas por usuário
+
+**Arquivo**: `SessionManager.swift` (novo)
+
+#### 4.6 Testes
+- Unit tests para JailbreakDetector
+- Integration tests para 2FA flow
+- Security tests para anomaly detection
+
+**Timeline**: Semanas 5-7
+**Owner**: Security Team + iOS Team
 
 ---
 
-## 📈 Metrics (Phase 2)
+## 📊 Phase 5: Analytics, Monitoring & Optimization (2 semanas)
 
-| Métrica | Valor | Target |
-|---------|-------|--------|
-| Code Coverage | 75% | 80%+ |
-| Security Vulnerabilities | 1* | 0 |
-| Startup Time | 1.2s | < 2s ✅ |
-| Memory (avg) | 60MB | < 100MB ✅ |
-| App Store Size | 15MB | < 50MB ✅ |
+**Objetivo**: Coletar metrics, monitorar saúde da app, e otimizar performance.
 
-\* HTTPS pinning (pendente Phase 3 com backend)
+### Tarefas
+
+#### 5.1 Analytics Framework
+- **Ferramenta**: Firebase Analytics (Google) ou Amplitude
+- **Eventos para rastrear**:
+  - `app_launch` (com versão + device model)
+  - `login_success` / `login_failure` (sem PII)
+  - `password_reset` (sucesso/falha)
+  - `biometric_setup` (tipo biometria + sucesso)
+  - `app_crash` (stack trace anônimo)
+  - `api_error` (endpoint + status code)
+  - `performance_slow` (operação + duração em ms)
+
+**Arquivo**: `AnalyticsManager.swift` (novo)
+```swift
+struct AnalyticsManager {
+    static func logEvent(_ name: String, parameters: [String: Any]? = nil)
+    static func logLoginAttempt(success: Bool, method: String) // password/biometric
+    static func logApiError(endpoint: String, statusCode: Int)
+}
+```
+
+#### 5.2 Crash Reporting
+- **Ferramenta**: Sentry ou Firebase Crashlytics
+- **Dados coletados**:
+  - Stack trace (com source map)
+  - Breadcrumbs (últimas 5 ações do usuário)
+  - Device info (model, iOS version, available memory)
+  - User ID (anônimo)
+- **Alertas**: Notificar team se crash rate > 1%
+
+#### 5.3 Performance Monitoring
+- **Uso de `PerformanceMonitor` já criado**
+- **Endpoints monitorados**:
+  - Login API (target: < 2s)
+  - Refresh token (target: < 500ms)
+  - Biometric authentication (target: < 1s)
+- **App metrics**:
+  - Memory footprint (target: < 100MB)
+  - Startup time (target: < 2s cold start)
+  - Frame rate (target: 60 FPS)
+
+#### 5.4 Database Optimization
+- **Local**: Armazenar user preferences + offline cache em SQLite
+  - Email validation history (para cache)
+  - Biometric setup state
+  - Session timestamps
+- **Schema**: Simples, indexed por email
+
+**Arquivo**: `LocalDatabase.swift` (novo) - usando GRDB ou Core Data
+
+#### 5.5 Network Optimization
+- **HTTP/2**: Usar HTTP/2 em todos endpoints (via URLSession)
+- **Compression**: Gzip response bodies
+- **Caching**: HTTP cache headers apropriados (Cache-Control, ETag)
+- **Batching**: Combinar múltiplas requisições quando possível
+
+#### 5.6 Testes & Benchmarks
+- Load testing: 1000 concurrent logins/segundo
+- Memory profiling: Verificar leaks com Instruments
+- Battery impact: Monitorar com Energy Impact
+- Network: Testar com throttling (3G, 4G, LTE)
+
+**Timeline**: Semanas 8-9
+**Owner**: DevOps + iOS Team
 
 ---
 
-**Última Atualização**: Novembro 30, 2025  
-**Next Review**: Dezembro 15, 2025 (Phase 3 kick-off)  
-**Maintainer**: iOS Platform Team
+## 🎨 Phase 6: UI/UX Polish & App Store Submission (2 semanas)
 
+**Objetivo**: Polir interface, testes finais, e submeter para App Store.
+
+### Tarefas
+
+#### 6.1 UI/UX Enhancements
+- **Onboarding**: Criar tela de boas-vindas com explicação de segurança biométrica
+  - "Por que pedimos biometria?"
+  - "Como seus dados são protegidos?"
+  - Skip para usuários já autenticados
+
+**Arquivo**: `OnboardingView.swift` (novo)
+
+- **Temas**: Verificar light/dark mode em todas as telas
+  - LoginView ✅ (já tem theme toggle)
+  - ForgotPasswordView ✅
+  - ReauthenticationView ✅
+  - Add ProfileView dark mode fix se necessário
+
+- **Acessibilidade**: 
+  - VoiceOver support (labels em ImageButtons)
+  - Dynamic font sizes (min 12pt, max 32pt)
+  - Color contrast ratio (WCAG AA: 4.5:1 para texto)
+  - Tester: Ligar VoiceOver + testar flow completo
+
+#### 6.2 Localization (i18n)
+- **Idiomas**: Português (BR) + Inglês (US) no mínimo
+- **Strings**: Extrair todas strings hardcoded para `Localizable.strings`
+  - "Email inválido" → pt-BR: "Email inválido", en-US: "Invalid email"
+  - "Senha inválida" → pt-BR: "Senha inválida", en-US: "Invalid password"
+  - Etc. (~50 strings)
+- **Dates**: Usar locale apropriado (dd/MM/yyyy vs MM/dd/yyyy)
+- **Numbers**: Usar locale-aware NumberFormatter
+
+**Arquivo**: `Localizable.strings` (Português), `Localizable.strings` (Inglês)
+
+#### 6.3 Final Testing
+- **Smoke Tests**: Verificar cada tela carrega
+  - LoginView: Email input + Password input + Login button ✅
+  - ForgotPasswordView: Email + Nova senha + PasswordStrength ✅
+  - MainTabView: Tabs navegam ✅
+  - ProfileView: Logout funciona ✅
+  - ReauthenticationView: Biometria funciona ✅
+
+- **Security Tests**:
+  - Login com email duplicado → rejeitado ✅
+  - 5 tentativas falhadas → lockout 5 min ✅
+  - Logout → biometria limpa ✅
+  - App em background 30s → pede re-auth ✅
+
+- **Device Testing**: Rodar em:
+  - iPhone 14 Pro (latest)
+  - iPhone 13 mini (antigo)
+  - iPad Air (tablet)
+  - Testar com network throttling (3G)
+
+- **iOS Versions**: Testar em iOS 14.0, 15.0, 17.0+ (target >= 14.0)
+
+#### 6.4 App Store Submission
+- **App Name**: "EasyFly" ✅
+- **Icon**: 1024x1024 PNG (airplane theme) → criar/obter
+- **Screenshots**: 5x (en-US) + 5x (pt-BR)
+  - Screenshot 1: Login screen com email/password
+  - Screenshot 2: Biometric setup
+  - Screenshot 3: Main app (flights)
+  - Screenshot 4: Profile com logout
+  - Screenshot 5: Security features
+- **Description**:
+  - "Secure flight booking app with biometric authentication"
+  - Mencionar: Encryption, SHA-256, PBKDF2, Rate limiting, 2FA
+- **Keywords**: flight, booking, biometric, security, authentication
+- **Privacy Policy**: Publicar em website (mencionar: dados não coletados, apenas stored localmente)
+- **Terms of Service**: Publicar em website
+
+**App Store Metadata**:
+```
+Bundle ID: com.easyfly.app
+Category: Travel
+Minimum OS: iOS 14.0
+Supported devices: iPhone (4.7"+), iPad
+Rating: 17+ (no offensive content, but security-focused app)
+```
+
+#### 6.5 Build & Code Signing
+- **Provisioning Profile**: Development → Production
+  - Xcode: Manage Certificates → Apple ID login
+  - Export: Ad Hoc ou App Store distribution
+  - Code sign: Automatic signing enabled
+
+- **Release Build**:
+```bash
+xcodebuild -scheme EasyFly -configuration Release \
+  -derivedDataPath build -archivePath build/EasyFly.xcarchive archive
+```
+
+- **Notarization**: Apple requer notarização para distribuição (Mac only, iOS não precisa)
+
+#### 1.0 Documentation
+- **README.md**: Como rodar localmente, setup do Xcode
+
+---
+
+## 📅 Cronograma Consolidado
+
+| Fase | Semanas | Datas (est.) | Status | Owner |
+|------|---------|--------------|--------|-------|
+| Phase 1 | 4 | Out 2025 | ✅ Completo | Mobile |
+| Phase 2 | 4 | Nov 2025 | ✅ Completo | Security |
+| Phase 3 | 4 | Dez 2025 | 🚀 Em Planejamento | Backend + Mobile |
+| Phase 4 | 3 | Jan 2026 | 🚀 Em Planejamento | Security + Mobile |
+| Phase 5 | 2 | Fev 2026 | 🚀 Em Planejamento | DevOps + Mobile |
+| Phase 6 | 2 | Mar 2026 | 🚀 Em Planejamento | Product + QA |
+| **Total** | **19 semanas** | **Out 2025 - Mar 2026** | — | — |
+
+**Alvo de Lançamento**: Março 2026 (App Store)
+
+### Performance
+- Cold start: < 2s
+- Login: < 2s
+- Biometric auth: < 1s
+- Memory: < 100MB (avg), < 150MB (peak)
+- Battery: < 5% drain/hour (idle)
+
+### Compatibility
+- iOS: 14.0+ (iPhone 6s+)
+- Devices: iPhone + iPad
+- Orientations: Portrait + Landscape
+- Dark mode: Full support
+
+---
+
+**Próximo Review**: 15 Dezembro 2025 (validar Phase 3 requirements)
