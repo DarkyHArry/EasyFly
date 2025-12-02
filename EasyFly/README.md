@@ -305,14 +305,6 @@ xcodebuild -scheme EasyFly -configuration Debug -sdk iphoneos -destination 'gene
 
 ---
 
-## 🚀 Build para Production
-
-### Preparação
-1. **Certificado Developer**: Apple Developer Account ($99/ano)
-2. **Provisioning Profile**: Xcode → Preferences → Accounts → Manage Certificates
-3. **Bundle ID**: Único (ex: `com.yourcompany.easyfly`)
-4. **Version Bump**: Info.plist → Version = "2.0"
-
 ### Build Release
 ```bash
 # Clean build folder
@@ -330,14 +322,6 @@ xcodebuild archive \
 # teamID: seu Team ID
 # method: app-store (ou ad-hoc/enterprise)
 ```
-
-### App Store Submission
-1. **Create App ID**: App Store Connect → My Apps
-2. **Upload Build**: Xcode → Window → Organizer → Archives → Distribute App
-3. **Metadata**: Nome, descrição, screenshots, keywords
-4. **Review**: Apple verifica (típicamente 24h)
-5. **Approve & Release**: Choose a release date
-
 ---
 
 ## 📊 Roadmap (Phases 3-6)
@@ -349,8 +333,6 @@ xcodebuild archive \
 | **5** | Fev 2026 | Analytics + Monitoring | 🚀 Planejado |
 | **6** | Mar 2026 | UI Polish + App Store | 🚀 Planejado |
 
-**Veja [PHASES_3_TO_6_ROADMAP.md](PHASES_3_TO_6_ROADMAP.md) para detalhes.**
-
 ---
 
 ## 📱 Compatibilidade
@@ -360,9 +342,7 @@ xcodebuild archive \
 - **Biometria**: TouchID (A9+), FaceID (A11+)
 - **Dark Mode**: ✅ Full support
 - **Orientations**: Portrait + Landscape
-
-**Veja [MULTI_DEVICE_COMPATIBILITY.md](MULTI_DEVICE_COMPATIBILITY.md) para matriz completa.**
-
+  
 ---
 
 ## 🐛 Troubleshooting
@@ -395,57 +375,6 @@ xcrun simctl erase all  # Apaga todos simuladores
 Xcode → Product → Profile → Memory Leaks
 # Se houver leaks, check [weak self] em closures
 ```
-
----
-
-## 📞 Suporte
-
-**Issues & Bugs**: Abra issue no GitHub com:
-1. Descrição do problema
-2. Steps para reproduzir
-3. Device model + iOS version
-4. Logs (via Xcode console)
-
-**Security Issues**: Email privado para security@easyfly.com (não public issues)
-
-**Questions**: Veja [Discussions](https://github.com/seu-repo/EasyFly/discussions)
-
----
-
-## 📄 Licença
-
-**Confidencial** — Propriedade intelectual. Não distribuir sem permissão.
-
----
-
-## 👥 Contribuindo
-
-Veja [CONTRIBUTING.md](CONTRIBUTING.md) (a ser criado em Phase 6)
-
----
-
-## 🙏 Agradecimentos
-
-- **iOS Team**: Design + implementação
-- **Security Team**: Audits + hardening
-- **QA Team**: Testes e validação
-- **Apple**: Frameworks (CryptoKit, LocalAuthentication, Keychain)
-
----
-
-## 📈 Metrics (Phase 2)
-
-| Métrica | Valor | Target |
-|---------|-------|--------|
-| Code Coverage | 75% | 80%+ |
-| Security Vulnerabilities | 1* | 0 |
-| Startup Time | 1.2s | < 2s ✅ |
-| Memory (avg) | 60MB | < 100MB ✅ |
-| App Store Size | 15MB | < 50MB ✅ |
-
-\* HTTPS pinning (pendente Phase 3 com backend)
-
----
 
 **Última Atualização**: Novembro 30, 2025  
 **Next Review**: Dezembro 15, 2025 (Phase 3 kick-off)  
