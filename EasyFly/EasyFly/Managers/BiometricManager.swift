@@ -63,7 +63,7 @@ final class BiometricManager {
             // Generate new salt on first setup
             salt = Data((0..<16).map { _ in UInt8.random(in: 0...255) })
             defaults.set(salt, forKey: saltKey)
-            os_log("Generated new salt for: %{private}@", log: logger, type: .info, normalized)
+            os_log("Generated new salt for: %{private}@", log: self.logger, type: .default, normalized)
         }
         
         // PBKDF2: Derive 256-bit key from email + salt
@@ -83,12 +83,11 @@ final class BiometricManager {
 
     // MARK: - Biometric Enrollment & Persistence
     
-    func enableBiometricLogin(for email: String) -> Bool {
+    func enableBiometricLogin(for email: String) {
         let e = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let key = "biometric_enabled:\(e)"
         defaults.set(true, forKey: key)
-        os_log("Biometric enabled: %{private}@", log: logger, type: .info, e)
-        return true
+        os_log("Biometric enabled: %{private}@", log: logger, type: .default, e)
     }
 
     func disableBiometricLogin(for email: String) {
@@ -97,7 +96,7 @@ final class BiometricManager {
         defaults.removeObject(forKey: key)
         let secretKey = "biometric_secret:\(e)"
         defaults.removeObject(forKey: secretKey)
-        os_log("Biometric disabled: %{private}@", log: logger, type: .info, e)
+        os_log("Biometric disabled: %{private}@", log: logger, type: .default, e)
     }
 
     func isBiometricLoginEnabled(for email: String) -> Bool {
@@ -115,12 +114,12 @@ final class BiometricManager {
         
         let sealedBox = try? AES.GCM.seal(data, using: key)
         guard let box = sealedBox else {
-            os_log("Failed to encrypt secret for: %{private}@", log: logger, type: .error, email)
+            os_log("Failed to encrypt secret for: %{private}@", log: self.logger, type: .fault, email)
             return nil
         }
         
         let encrypted = box.combined?.base64EncodedString() ?? ""
-        os_log("Secret encrypted for: %{private}@", log: logger, type: .info, email)
+        os_log("Secret encrypted for: %{private}@", log: self.logger, type: .default, email)
         return encrypted
     }
 
@@ -130,12 +129,12 @@ final class BiometricManager {
         guard let key = deriveKeyForUser(email) else { return nil }
 
         guard let sealedBox = try? AES.GCM.SealedBox(combined: encryptedData) else {
-            os_log("Failed to parse sealed box for: %{private}@", log: logger, type: .error, email)
+            os_log("Failed to parse sealed box for: %{private}@", log: self.logger, type: .fault, email)
             return nil
         }
         
         guard let decrypted = try? AES.GCM.open(sealedBox, using: key) else {
-            os_log("Failed to decrypt secret for: %{private}@", log: logger, type: .error, email)
+            os_log("Failed to decrypt secret for: %{private}@", log: self.logger, type: .fault, email)
             return nil
         }
         
@@ -149,7 +148,7 @@ final class BiometricManager {
         
         // Check if biometric login is enabled
         guard isBiometricLoginEnabled(for: e) else {
-            os_log("Biometric not enabled: %{private}@", log: logger, type: .error, e)
+            os_log("Biometric not enabled: %{private}@", log: logger, type: .fault, e)
             return false
         }
 
@@ -157,12 +156,12 @@ final class BiometricManager {
         ctx.interactionNotAllowed = false
 
         return await withCheckedContinuation { cont in
-            ctx.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, err in
+            ctx.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, _ in
                 if success {
-                    os_log("Biometric auth successful: %{private}@", log: logger, type: .info, e)
+                    os_log("Biometric auth successful: %{private}@", log: self.logger, type: .default, e)
                     cont.resume(returning: true)
                 } else {
-                    os_log("Biometric auth failed: %{private}@", log: logger, type: .error, e)
+                    os_log("Biometric auth failed: %{private}@", log: self.logger, type: .fault, e)
                     cont.resume(returning: false)
                 }
             }
@@ -181,11 +180,11 @@ final class BiometricManager {
             let secretKey = "biometric_secret:\(e)"
             defaults.set(encrypted, forKey: secretKey)
             enableBiometricLogin(for: e)
-            os_log("Biometric setup complete: %{private}@", log: logger, type: .info, e)
+            os_log("Biometric setup complete: %{private}@", log: logger, type: .default, e)
             return true
         }
         
-        os_log("Biometric setup failed: %{private}@", log: logger, type: .error, e)
+        os_log("Biometric setup failed: %{private}@", log: logger, type: .fault, e)
         return false
     }
 
@@ -195,12 +194,12 @@ final class BiometricManager {
         let secretKey = "biometric_secret:\(e)"
         
         guard let encrypted = defaults.string(forKey: secretKey) else {
-            os_log("No biometric secret found: %{private}@", log: logger, type: .error, e)
+            os_log("No biometric secret found: %{private}@", log: logger, type: .fault, e)
             return false
         }
         let decrypted = decryptSecret(encrypted, for: e)
         let valid = decrypted != nil
-        os_log("Biometric secret verification: %{private}@ - %@", log: logger, type: valid ? .info : .error, e, valid ? "valid" : "invalid")
+        os_log("Biometric secret verification: %{private}@ - %@", log: logger, type: valid ? .default : .fault, e, valid ? "valid" : "invalid")
         return valid
     }
 
@@ -210,6 +209,6 @@ final class BiometricManager {
         disableBiometricLogin(for: e)
         let secretKey = "biometric_secret:\(e)"
         defaults.removeObject(forKey: secretKey)
-        os_log("Biometric data cleared: %{private}@", log: logger, type: .info, e)
+        os_log("Biometric data cleared: %{private}@", log: logger, type: .default, e)
     }
 }

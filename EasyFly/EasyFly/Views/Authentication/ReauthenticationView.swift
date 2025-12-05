@@ -120,14 +120,14 @@ struct ReauthenticationView: View {
                 } else {
                     authError = "Falha na autenticação. Tente novamente."
                     showError = true
-                    os_log("Re-authentication failed for %{private}@", log: logger, type: .warning, loggedEmail)
+                    os_log("Re-authentication failed for %{private}@", log: logger, type: .default, loggedEmail)
                 }
             }
         }
     }
     
     private func logout() {
-        os_log("User logout from re-authentication screen for %{private}@", log: logger, type: .warning, loggedEmail)
+        os_log("User logout from re-authentication screen for %{private}@", log: logger, type: .default, loggedEmail)
         BiometricManager.shared.clearBiometricData(for: loggedEmail)
         UserDefaults.standard.removeObject(forKey: "isLoggedIn")
         UserDefaults.standard.removeObject(forKey: "loggedEmail")

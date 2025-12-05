@@ -18,8 +18,8 @@ final class CacheManager {
     
     /// Cache do tipo biométrico disponível no dispositivo
     func cachedBiometricType() -> BiometricManager.BiometricType {
-        return cacheQueue.sync {
-            // Biometric type é constante por dispositivo, cachear indefinidamente
+        // Biometric type é constante por dispositivo, cachear indefinidamente
+        let result = cacheQueue.sync { () -> BiometricManager.BiometricType in
             if let cachedType = UserDefaults.standard.object(forKey: "cached_biometric_type") as? String {
                 switch cachedType {
                 case "faceID": return .faceID
@@ -27,7 +27,6 @@ final class CacheManager {
                 default: return .none
                 }
             }
-            
             // Primeira vez: detectar e cachear
             let bioType = BiometricManager.shared.getBiometricType()
             let typeString: String
@@ -37,10 +36,10 @@ final class CacheManager {
             case .none: typeString = "none"
             }
             UserDefaults.standard.set(typeString, forKey: "cached_biometric_type")
-            os_log("Cached biometric type: %@", log: logger, type: .debug, typeString)
-            
+            os_log("Cached biometric type: %@", log: logger, type: .default, typeString)
             return bioType
         }
+        return result
     }
     
     /// Cache para validação de email (válido por 1 minuto)
@@ -48,7 +47,7 @@ final class CacheManager {
         return cacheQueue.sync {
             if let cached = emailValidationCache[email] {
                 if Date().timeIntervalSince(cached.timestamp) < VALIDATION_CACHE_DURATION {
-                    os_log("Email validation cache hit: %{private}@", log: logger, type: .debug, email)
+                    os_log("Email validation cache hit: %{private}@", log: logger, type: .default, email)
                     return cached.isValid
                 } else {
                     // Cache expirado
@@ -64,7 +63,7 @@ final class CacheManager {
     func cacheEmailValidation(_ email: String, isValid: Bool) {
         cacheQueue.sync {
             emailValidationCache[email] = (isValid: isValid, timestamp: Date())
-            os_log("Cached email validation: %{private}@ = %@", log: logger, type: .debug, email, isValid ? "valid" : "invalid")
+            os_log("Cached email validation: %{private}@ = %@", log: logger, type: .default, email, isValid ? "valid" : "invalid")
         }
     }
     
@@ -72,13 +71,13 @@ final class CacheManager {
     func clearCache() {
         cacheQueue.sync {
             emailValidationCache.removeAll()
-            os_log("Cache cleared", log: logger, type: .info)
+            os_log("Cache cleared", log: logger, type: .default)
         }
     }
     
     /// Limpar cache de um email específico
     func clearEmailCache(_ email: String) {
-        cacheQueue.sync {
+        _ = cacheQueue.sync {
             emailValidationCache.removeValue(forKey: email)
         }
     }
@@ -95,7 +94,7 @@ struct PerformanceMonitor {
         
         let logger = OSLog(subsystem: "com.aerofly.EasyFly", category: "Performance")
         if elapsed > 0.1 { // Log apenas operações que levam > 100ms
-            os_log("Performance: %@ took %.3f seconds", log: logger, type: .warning, name, elapsed)
+            os_log("Performance: %@ took %.3f seconds", log: logger, type: .fault, name, elapsed)
         }
         return result
     }
@@ -108,7 +107,7 @@ struct PerformanceMonitor {
         
         let logger = OSLog(subsystem: "com.aerofly.EasyFly", category: "Performance")
         if elapsed > 0.1 {
-            os_log("Async Performance: %@ took %.3f seconds", log: logger, type: .warning, name, elapsed)
+            os_log("Async Performance: %@ took %.3f seconds", log: logger, type: .fault, name, elapsed)
         }
         return result
     }

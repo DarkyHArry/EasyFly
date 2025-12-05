@@ -48,21 +48,21 @@ final class AppLifecycleManager: NSObject, ObservableObject {
     
     @objc private func appDidEnterBackground() {
         backgroundTime = Date()
-        os_log("App entered background at %@", log: logger, type: .info, Date().description)
+        os_log("App entered background at %@", log: logger, type: .default, Date().description)
     }
     
     @objc private func appWillEnterForeground() {
         // Se o app estava em background por mais de 30 segundos, pedir re-autenticação
         if let backgroundTime = backgroundTime {
             let timeInBackground = Date().timeIntervalSince(backgroundTime)
-            os_log("App returned from background. Time away: %.0f seconds", log: logger, type: .info, timeInBackground)
+            os_log("App returned from background. Time away: %.0f seconds", log: logger, type: .default, timeInBackground)
             
             if timeInBackground > 30 {
                 // Pedir re-autenticação por segurança
                 DispatchQueue.main.async {
                     self.shouldRequireReauth = true
                 }
-                os_log("Re-authentication required (was in background for %.0f seconds)", log: logger, type: .info, timeInBackground)
+                os_log("Re-authentication required (was in background for %.0f seconds)", log: logger, type: .default, timeInBackground)
             }
         }
         self.backgroundTime = nil
@@ -76,7 +76,7 @@ final class AppLifecycleManager: NSObject, ObservableObject {
     func resetReauthRequirement() {
         shouldRequireReauth = false
         backgroundTime = nil
-        os_log("Re-authentication requirement reset", log: logger, type: .info)
+        os_log("Re-authentication requirement reset", log: logger, type: .default)
     }
     
     deinit {

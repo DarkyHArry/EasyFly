@@ -30,7 +30,7 @@ final class UserManager {
         
         // Check if user already exists (prevent duplicate accounts)
         if hasAccount(email: e) {
-            os_log("Email já existe: %{private}@", log: logger, type: .warning, e)
+            os_log("Email já existe: %{private}@", log: logger, type: .default, e)
             return false
         }
         
@@ -38,9 +38,9 @@ final class UserManager {
         let hashedPassword = hashPassword(password)
         let success = keychain.save(password: hashedPassword, account: e)
         if success {
-            os_log("User created: %{private}@", log: logger, type: .info, e)
+            os_log("User created: %{private}@", log: logger, type: .default, e)
         } else {
-            os_log("Failed to create user: %{private}@", log: logger, type: .error, e)
+            os_log("Failed to create user: %{private}@", log: logger, type: .fault, e)
         }
         return success
     }
@@ -48,18 +48,18 @@ final class UserManager {
     func verifyPassword(email: String, password: String) -> Bool {
         let e = normalizeEmail(email)
         guard !isLocked(email: e) else {
-            os_log("Account locked: %{private}@", log: logger, type: .warning, e)
+            os_log("Account locked: %{private}@", log: logger, type: .default, e)
             return false
         }
         if let stored = keychain.readPassword(account: e) {
             let inputHash = hashPassword(password)
             if stored == inputHash {
                 resetFailedAttempts(email: e)
-                os_log("Password verified: %{private}@", log: logger, type: .info, e)
+                os_log("Password verified: %{private}@", log: logger, type: .default, e)
                 return true
             } else {
                 recordFailedAttempt(email: e)
-                os_log("Password mismatch: %{private}@", log: logger, type: .warning, e)
+                os_log("Password mismatch: %{private}@", log: logger, type: .default, e)
                 return false
             }
         }
@@ -74,9 +74,9 @@ final class UserManager {
         let saved = keychain.save(password: hashedPassword, account: e)
         if saved {
             resetFailedAttempts(email: e)
-            os_log("Password changed: %{private}@", log: logger, type: .info, e)
+            os_log("Password changed: %{private}@", log: logger, type: .default, e)
         } else {
-            os_log("Failed to change password: %{private}@", log: logger, type: .error, e)
+            os_log("Failed to change password: %{private}@", log: logger, type: .fault, e)
         }
         return saved
     }
@@ -90,12 +90,12 @@ final class UserManager {
         var attempts = defaults.integer(forKey: attemptsKey(e))
         attempts += 1
         defaults.set(attempts, forKey: attemptsKey(e))
-        os_log("Failed attempt %d: %{private}@", log: logger, type: .warning, attempts, e)
+        os_log("Failed attempt %d: %{private}@", log: logger, type: .default, attempts, e)
         if attempts >= 5 {
             // lock for 5 minutes
             let until = Date().addingTimeInterval(5 * 60)
             defaults.set(until, forKey: lockKey(e))
-            os_log("Account locked for 5 minutes: %{private}@", log: logger, type: .error, e)
+            os_log("Account locked for 5 minutes: %{private}@", log: logger, type: .fault, e)
         }
     }
 
@@ -103,7 +103,7 @@ final class UserManager {
         let e = normalizeEmail(email)
         defaults.removeObject(forKey: attemptsKey(e))
         defaults.removeObject(forKey: lockKey(e))
-        os_log("Failed attempts reset: %{private}@", log: logger, type: .info, e)
+        os_log("Failed attempts reset: %{private}@", log: logger, type: .default, e)
     }
 
     func isLocked(email: String) -> Bool {
@@ -138,7 +138,7 @@ final class UserManager {
         let ctx = LAContext()
         ctx.interactionNotAllowed = false
         return await withCheckedContinuation { cont in
-            ctx.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, err in
+            ctx.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, _ in
                 if success {
                     // if email provided, check if we have credentials
                     if let e = email.map({ self.normalizeEmail($0) }), !e.isEmpty {
@@ -186,7 +186,7 @@ final class UserManager {
             // Compara hash da senha de entrada com hash armazenado
             if let storedHash = keychain.readPassword(account: account) {
                 if storedHash == incomingHash {
-                    os_log("Password collision detected with account: %{private}@", log: logger, type: .warning, account)
+                    os_log("Password collision detected with account: %{private}@", log: logger, type: .default, account)
                     return true
                 }
             }
