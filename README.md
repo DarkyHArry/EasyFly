@@ -329,7 +329,7 @@ struct AnalyticsManager {
   - iPad Air (tablet)
   - Testar com network throttling (3G)
 
-- **iOS Versions**: Testar em iOS 14.0, 15.0, 17.0+ (target >= 14.0)
+- **iOS Versions**: Testar em iOS 16.6, 17.0, 18.0 (target >= 16.6)
 
 #### 6.4 App Store Submission
 - **App Name**: "EasyFly" ✅
@@ -351,8 +351,8 @@ struct AnalyticsManager {
 ```
 Bundle ID: com.easyfly.app
 Category: Travel
-Minimum OS: iOS 14.0
-Supported devices: iPhone (4.7"+), iPad
+Minimum OS: iOS 16.6
+Supported devices: iPhone (4.7"+)
 Rating: 17+ (no offensive content, but security-focused app)
 ```
 
@@ -380,14 +380,13 @@ xcodebuild -scheme EasyFly -configuration Release \
 | Fase | Semanas | Datas (est.) | Status | Owner |
 |------|---------|--------------|--------|-------|
 | Phase 1 | 4 | Out 2025 | ✅ Completo | Mobile |
-| Phase 2 | 4 | Nov 2025 | ✅ Completo | Security |
-| Phase 3 | 4 | Dez 2025 | 🚀 Em Planejamento | Backend + Mobile |
-| Phase 4 | 3 | Jan 2026 | 🚀 Em Planejamento | Security + Mobile |
-| Phase 5 | 2 | Fev 2026 | 🚀 Em Planejamento | DevOps + Mobile |
-| Phase 6 | 2 | Mar 2026 | 🚀 Em Planejamento | Product + QA |
-| **Total** | **19 semanas** | **Out 2025 - Mar 2026** | — | — |
+| Phase 2 | 4 | Nov 2025 | ✅ Completo | Security and Fixed Bugs |
+| Phase 3 | 4 | Fev 2026 | 🚀 Em Planejamento | Backend + Mobile |
+| Phase 4 | 3 | Mar 2026 | 🚀 Em Planejamento | Security + Mobile |
+| Phase 5 | 2 | Out 2026 | 🚀 Em Planejamento | DevOps + Mobile |
+| Phase 6 | 2 | Nov 2026 | 🚀 Em Planejamento | Product + QA |
 
-**Alvo de Lançamento**: Março 2026 (App Store)
+**Alvo de Lançamento**: Nov 2026 (App Store)
 
 ### Performance
 - Cold start: < 2s
@@ -397,8 +396,8 @@ xcodebuild -scheme EasyFly -configuration Release \
 - Battery: < 5% drain/hour (idle)
 
 ### Compatibility
-- iOS: 14.0+ (iPhone 6s+)
-- Devices: iPhone + iPad
+- iOS: 16.6+ (iPhone 8+)
+- Devices: iPhone only
 - Orientations: Portrait + Landscape
 - Dark mode: Full support
 
